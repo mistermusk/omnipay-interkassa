@@ -74,7 +74,7 @@ class PurchaseRequest extends AbstractRequest
         ksort($array, SORT_STRING);
         foreach ($array as $key => $value) {
             if (is_array($value)) {
-                $array[$key] = sortByKeyRecursive($value);
+                $array[$key] = $this->sortByKeyRecursive($value);
             }
         }
         return $array;
@@ -84,7 +84,7 @@ class PurchaseRequest extends AbstractRequest
     {
         $result = '';
         foreach ($array as $item) {
-            $result .= (is_array($item) ? implodeRecursive($separator, $item) : (string)$item) . $separator;
+            $result .= (is_array($item) ? $this->implodeRecursive($separator, $item) : (string)$item) . $separator;
         }
 
         return substr($result, 0, -1);
@@ -96,10 +96,10 @@ class PurchaseRequest extends AbstractRequest
 
 
         $checkoutKey = $this->getSecretKey();
-        $sortedDataByKeys = sortByKeyRecursive($data);
+        $sortedDataByKeys = $this->sortByKeyRecursive($data);
         $sortedDataByKeys[] = $checkoutKey;
 
-        $signString = implodeRecursive(':', $sortedDataByKeys);
+        $signString = $this->implodeRecursive(':', $sortedDataByKeys);
         $data['ik_sign'] = base64_encode(hash('sha256', $signString, true));
 
         $headers = [
