@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Omnipay\PayPlanet\Message;
+namespace Omnipay\InterKassa\Message;
 
 use Omnipay\Common\Message\AbstractResponse;
 use Omnipay\Common\Message\RedirectResponseInterface;
