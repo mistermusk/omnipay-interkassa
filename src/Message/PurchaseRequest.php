@@ -102,11 +102,13 @@ class PurchaseRequest extends AbstractRequest
         $signString = $this->implodeRecursive(':', $sortedDataByKeys);
         $data['ik_sign'] = base64_encode(hash('sha256', $signString, true));
 
+        $postData = http_build_query($data);
+
         $headers = [
             'Content-Type' => 'application/x-www-form-urlencoded',
         ];
 
-        $httpResponse = $this->httpClient->request('POST', 'https://sci.interkassa.com/', $headers, json_encode($data));
+        $httpResponse = $this->httpClient->request('POST', 'https://sci.interkassa.com/', $headers, $postData);
         return $this->createResponse($httpResponse->getBody()->getContents());
     }
 
