@@ -1,5 +1,6 @@
 <?php
 
+namespace Omnipay\InterKassa;
 
 use Omnipay\Common\AbstractGateway;
 
