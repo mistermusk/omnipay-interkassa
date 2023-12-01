@@ -13,9 +13,9 @@ class PurchaseRequest extends AbstractRequest
         return $this->getParameter('currency');
     }
 
-    public function getTransId()
+    public function getTx()
     {
-        return $this->getParameter('ts');
+        return $this->getParameter('tx');
     }
 
     public function getMethod()
@@ -47,13 +47,35 @@ class PurchaseRequest extends AbstractRequest
         return $this->getFullKeys()[$this->getMethod()]['secret_key'];
     }
 
+
+    public function setCurrency($value)
+    {
+        return $this->setParameter('currency', $value);
+    }
+
+    public function setTx($value)
+    {
+        return $this->setParameter('tx', $value);
+    }
+
+    public function setMethod($value)
+    {
+        return $this->setParameter('method', $value);
+    }
+
+    public function setAmount($value)
+    {
+        return $this->setParameter('amount', $value);
+    }
+
+
+
     public function getData()
     {
-        $this->validate('amount', 'currency', 'method', 'ts');
 
         $data = [
             'ik_co_id' => $this->getShopId(),
-            'ik_pm_no' => $this->getTransId(),
+            'ik_pm_no' => $this->getTx(),
             'ik_am' => $this->getAmount(),
             'ik_cur' => $this->getCurrency(),
             'ik_desc' => 'interkassa',
@@ -63,6 +85,7 @@ class PurchaseRequest extends AbstractRequest
             'ik_payment_currency' => $this->getCurrency(),
 
         ];
+        print_r($data);
         return array_filter($data, function ($value) {
             return $value !== null;
         });
