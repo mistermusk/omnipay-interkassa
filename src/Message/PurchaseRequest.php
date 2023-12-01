@@ -39,12 +39,12 @@ class PurchaseRequest extends AbstractRequest
 
     public function getShopId()
     {
-        return $this->getFullKeys()[$this->$this->getMethod()]['shop_id'];
+        return $this->getFullKeys()[$this->getMethod()]['shop_id'];
     }
 
     public function getSecretKey()
     {
-        return $this->getFullKeys()[$this->$this->getMethod()]['secret_key'];
+        return $this->getFullKeys()[$this->getMethod()]['secret_key'];
     }
 
     public function getData()
