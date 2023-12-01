@@ -1,0 +1,26 @@
+{
+  "name": "mistermusk/omnipay-interkassa",
+  "type": "library",
+  "autoload": {
+    "psr-4": {
+      "Omnipay\\InterKassa\\": "src/"
+    }
+  },
+  "authors": [
+    {
+      "name": "",
+      "email": ""
+    }
+  ],
+  "require": {
+    "omnipay/omnipay": "^3.2",
+    "league/omnipay": "^3",
+    "vlucas/phpdotenv": "^5.5",
+    "alcohol/iso4217": "4.1.0"
+  },
+  "config": {
+    "allow-plugins": {
+      "php-http/discovery": true
+    }
+  }
+}
