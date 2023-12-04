@@ -85,7 +85,7 @@ class PurchaseRequest extends AbstractRequest
             'ik_payment_currency' => $this->getCurrency(),
 
         ];
-        print_r($data);
+
         return array_filter($data, function ($value) {
             return $value !== null;
         });
