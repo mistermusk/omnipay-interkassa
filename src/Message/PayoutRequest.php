@@ -1,11 +1,12 @@
 <?php
 
-
 namespace Omnipay\InterKassa\Message;
 
 use Omnipay\Common\Message\AbstractRequest;
+use Omnipay\PayPlanet\Message\MapperCodeCurrency;
 
-class PurchaseRequest extends AbstractRequest
+
+class PayoutRequest extends AbstractRequest
 {
 
     public function getCurrency()
@@ -41,6 +42,14 @@ class PurchaseRequest extends AbstractRequest
     {
         return $this->getFullKeys()[$this->getMethod()]['shop_id'];
     }
+    public function getDetails()
+    {
+        return $this->getParameter('details');
+    }
+    public function setDetails($value)
+    {
+        return $this->setParameter('details', $value);
+    }
 
     public function getSecretKey()
     {
@@ -72,15 +81,15 @@ class PurchaseRequest extends AbstractRequest
     {
 
         $data = [
-            'ik_co_id' => $this->getShopId(),
-            'ik_pm_no' => $this->getTx(),
-            'ik_am' => $this->getAmount(),
-            'ik_cur' => $this->getCurrency(),
-            'ik_desc' => 'interkassa',
-            'ik_act' => 'process',
-            'ik_int' => 'json',
-            'ik_payment_method' => $this->getMethod(),
-            'ik_payment_currency' => $this->getCurrency(),
+            'purseId' => $this->getShopId(),
+            'paymentNo' => $this->getTx(),
+            'calcKey' => 'psPayeeAmount',
+            'amount' => $this->getAmount(),
+            'currency' => $this->getCurrency(),
+            'action' => 'process',
+            'useShortAlias' => true,
+            'method' => $this->getMethod(),
+            'details' => $this->getDetails()
 
         ];
 
@@ -127,15 +136,14 @@ class PurchaseRequest extends AbstractRequest
             'Content-Type' => 'application/x-www-form-urlencoded',
         ];
 
-        $httpResponse = $this->httpClient->request('POST', 'https://sci.interkassa.com/', $headers, $postData);
+        $httpResponse = $this->httpClient->request('POST', 'https://api.interkassa.com/v1/withdraw', $headers, $postData);
         return $this->createResponse($httpResponse->getBody()->getContents());
     }
 
-
     protected function createResponse($data)
     {
-        return $this->response = new PurchaseResponse($this, json_decode($data, true));
+        return $this->response = new PayoutResponse($this, json_decode($data, true));
     }
 
-}
 
+}
