@@ -38,6 +38,15 @@ class PayoutRequest extends AbstractRequest
         return $this->getParameter('fullKeys');
     }
 
+    public function getUserApi()
+    {
+        return $this->getFullKeys()['api']['shop_id'];
+    }
+    public function getKeyApi()
+    {
+        return $this->getFullKeys()['api']['secret_key'];
+    }
+
     public function getShopId()
     {
         return $this->getFullKeys()[$this->getMethod()]['shop_id'];
@@ -134,6 +143,7 @@ class PayoutRequest extends AbstractRequest
 
         $headers = [
             'Content-Type' => 'application/x-www-form-urlencoded',
+            'Ik-Api-Account-Id' => $this->getUserApi()
         ];
 
         $httpResponse = $this->httpClient->request('POST', 'https://api.interkassa.com/v1/withdraw', $headers, $postData);
