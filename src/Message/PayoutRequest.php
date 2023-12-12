@@ -156,40 +156,52 @@ class PayoutRequest extends AbstractRequest
 
     public function sendData($data)
     {
-        $userId = $this->getUserApi();
-        $apiKey = $this->getKeyApi();
+        $userId = $this->getUserApi(); // Убедитесь, что возвращается строка
+        $apiKey = $this->getKeyApi(); // Убедитесь, что возвращается строка
 
+        // Кодирование в Base64 для заголовка авторизации
         $authHeaderValue = 'Basic ' . base64_encode($userId . ':' . $apiKey);
 
         // Создаем подпись для данных
-        $checkoutKey = $this->getSecretKey();
+        $checkoutKey = $this->getSecretKey(); // Убедитесь, что возвращается строка
         $sortedDataByKeys = $this->sortByKeyRecursive($data);
         $sortedDataByKeys[] = $checkoutKey;
         $signString = $this->implodeRecursive(':', $sortedDataByKeys);
         $data['ik_sign'] = base64_encode(hash('sha256', $signString, true));
 
-        $multipartData = $this->prepareMultipartData($data);
+        // Подготавливаем данные для multipart/form-data
+        $multipartData = [];
+        foreach ($data as $key => $value) {
+            if (is_array($value)) {
+                foreach ($value as $subKey => $subValue) {
+                    $multipartData[] = [
+                        'name'     => $key . '[' . $subKey . ']',
+                        'contents' => $subValue
+                    ];
+                }
+            } else {
+                $multipartData[] = [
+                    'name'     => $key,
+                    'contents' => $value
+                ];
+            }
+        }
 
         // Устанавливаем HTTP заголовки
         $headers = [
-            'Ik-Api-Account-Id' => $userId,
             'Authorization' => $authHeaderValue,
+            'Ik-Api-Account-Id' => $userId
         ];
-
-        // Проверяем, что все заголовки являются скалярными значениями
-        foreach ($headers as $key => $value) {
-            if (!is_scalar($value)) {
-                throw new \InvalidArgumentException("Header value for $key must be scalar or null");
-            }
-        }
 
         // Отправляем запрос
         $httpResponse = $this->httpClient->request('POST', 'https://api.interkassa.com/v1/withdraw', [
             'headers' => $headers,
             'multipart' => $multipartData
         ]);
+
         return $this->createResponse($httpResponse->getBody()->getContents());
     }
+
 
 
 
