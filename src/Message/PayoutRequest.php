@@ -164,7 +164,7 @@ class PayoutRequest extends AbstractRequest
         $sortedDataByKeys = $this->sortByKeyRecursive($data);
         $sortedDataByKeys[] = $checkoutKey;
         $signString = $this->implodeRecursive(':', $sortedDataByKeys);
-        $data['ik_sign'] = base64_encode(hash('sha256', $signString, true));
+//        $data['ik_sign'] = base64_encode(hash('sha256', $signString, true));
 
         $multipartData = $this->prepareMultipartData($data);
 
