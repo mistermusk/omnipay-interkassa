@@ -132,10 +132,14 @@ class PayoutRequest extends AbstractRequest
 
     public function sendData($data)
     {
+        $userId = $this->getUserApi();
+        $apiKey = $this->getKeyApi();
+
+        $authHeaderValue = 'Basic ' . base64_encode($userId . ':' . $apiKey);
+
         $checkoutKey = $this->getSecretKey();
         $sortedDataByKeys = $this->sortByKeyRecursive($data);
         $sortedDataByKeys[] = $checkoutKey;
-
         $signString = $this->implodeRecursive(':', $sortedDataByKeys);
         $data['ik_sign'] = base64_encode(hash('sha256', $signString, true));
 
@@ -143,12 +147,15 @@ class PayoutRequest extends AbstractRequest
 
         $headers = [
             'Content-Type' => 'application/x-www-form-urlencoded',
-            'Ik-Api-Account-Id' => $this->getUserApi()
+            'Authorization' => $authHeaderValue,
+            'Ik-Api-Account-Id' => $userId
         ];
 
+        // Отправляем запрос
         $httpResponse = $this->httpClient->request('POST', 'https://api.interkassa.com/v1/withdraw', $headers, $postData);
         return $this->createResponse($httpResponse->getBody()->getContents());
     }
+
 
     protected function createResponse($data)
     {
