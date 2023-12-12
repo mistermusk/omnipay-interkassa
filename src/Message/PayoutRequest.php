@@ -155,6 +155,25 @@ class PayoutRequest extends AbstractRequest
 
     public function sendData($data)
     {
+
+        $data = [
+            'purseId' => "105187014830",  // ID кошелька
+            'paymentNo' => "0001111",     // Номер платежа
+            'calcKey' => "psPayeeAmount", // Ключ расчета
+            'amount' => "100",            // Сумма
+            'currency' => "EUR",          // Валюта
+            'action' => "calc",           // Действие
+            'useShortAlias' => "1",       // Использовать короткий псевдоним
+            'method' => "card",           // Метод
+            // Детали карты
+            'details' => [
+                'card' => "4242424242424242",
+                'first_name' => "test",
+                'last_name' => "testtwoo",
+                'phone' => "00000000000"
+            ]
+        ];
+
         // Подготовка данных запроса и заголовков
         $userId = $this->getUserApi(); // Убедитесь, что это строка
         $apiKey = $this->getKeyApi(); // Убедитесь, что это строка
