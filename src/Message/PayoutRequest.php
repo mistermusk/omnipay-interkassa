@@ -159,13 +159,13 @@ class PayoutRequest extends AbstractRequest
         $sortedDataByKeys = $this->sortByKeyRecursive($data);
         $sortedDataByKeys[] = $checkoutKey;
         $signString = $this->implodeRecursive(':', $sortedDataByKeys);
-        $data['ik_sign'] = base64_encode(hash('sha256', $signString, true));
+//        $data['ik_sign'] = base64_encode(hash('sha256', $signString, true));
 
         $postData = http_build_query($data);
 
         $headers = [
             'Content-Type' => 'application/x-www-form-urlencoded',
-            'Authorization' => $authHeaderValue,
+            'Authorization' => 'Basic NjM2ZTE4NWQ5YzIwYzI0OWEyNmM5ZTk3OjJEcW00VHhzRm96Tk8xU29XNFJ2YWR2b0pDWHFCVEcy',
             'Ik-Api-Account-Id' => $userId
         ];
         // Отправляем запрос
