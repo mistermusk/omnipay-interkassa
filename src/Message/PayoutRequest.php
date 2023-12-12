@@ -132,44 +132,40 @@ class PayoutRequest extends AbstractRequest
 
     public function sendData($data)
     {
+        // Create a boundary for multipart/form-data using SHA256
+        $boundary = '----WebKitFormBoundary' . hash('sha256', time());
+        $multipartData = '';
 
-        $data = [
-            'purseId' => "105187014830",  // ID кошелька
-            'paymentNo' => "0001111",     // Номер платежа
-            'calcKey' => "psPayeeAmount", // Ключ расчета
-            'amount' => "100",            // Сумма
-            'currency' => "EUR",          // Валюта
-            'action' => "calc",           // Действие
-            'useShortAlias' => "1",       // Использовать короткий псевдоним
-            'method' => "card",           // Метод
-            // Детали карты
-            'details' => [
-                'card' => "4242424242424242",
-                'first_name' => "test",
-                'last_name' => "testtwoo",
-                'phone' => "00000000000"
-            ]
-        ];
+        // Format data as multipart/form-data
+        foreach ($data as $key => $value) {
+            if (is_array($value)) {
+                foreach ($value as $subKey => $subValue) {
+                    $multipartData .= "--$boundary\r\n";
+                    $multipartData .= "Content-Disposition: form-data; name=\"{$key}[{$subKey}]\"\r\n\r\n";
+                    $multipartData .= "$subValue\r\n";
+                }
+            } else {
+                $multipartData .= "--$boundary\r\n";
+                $multipartData .= "Content-Disposition: form-data; name=\"$key\"\r\n\r\n";
+                $multipartData .= "$value\r\n";
+            }
+        }
+
+        $multipartData .= "--$boundary--\r\n";
+
         $userId = $this->getUserApi();
         $apiKey = $this->getKeyApi();
 
         $authHeaderValue = 'Basic ' . base64_encode($userId . ':' . $apiKey);
 
-        $checkoutKey = $this->getSecretKey();
-        $sortedDataByKeys = $this->sortByKeyRecursive($data);
-        $sortedDataByKeys[] = $checkoutKey;
-        $signString = $this->implodeRecursive(':', $sortedDataByKeys);
-//        $data['ik_sign'] = base64_encode(hash('sha256', $signString, true));
-
-        $postData = http_build_query($data);
-
         $headers = [
-            'Content-Type' => 'application/x-www-form-urlencoded',
-            'Authorization' => 'Basic NjM2ZTE4NWQ5YzIwYzI0OWEyNmM5ZTk3OjJEcW00VHhzRm96Tk8xU29XNFJ2YWR2b0pDWHFCVEcy',
+            'Content-Type' => "multipart/form-data; boundary=$boundary",
+            'Authorization' => $authHeaderValue,
             'Ik-Api-Account-Id' => $userId
         ];
-        // Отправляем запрос
-        $httpResponse = $this->httpClient->request('POST', 'https://api.interkassa.com/v1/withdraw', $headers, $postData);
+
+        // Send the request
+        $httpResponse = $this->httpClient->request('POST', 'https://api.interkassa.com/v1/withdraw', $headers, $multipartData);
         return $this->createResponse($httpResponse->getBody()->getContents());
     }
 
