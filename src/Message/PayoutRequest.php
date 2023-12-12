@@ -146,7 +146,7 @@ class PayoutRequest extends AbstractRequest
         $postData = http_build_query($data);
 
         $headers = [
-            'Content-Type' => 'application/x-www-form-urlencoded',
+            'Content-Type' => 'multipart/form-data',
             'Authorization' => $authHeaderValue,
             'Ik-Api-Account-Id' => $userId
         ];
