@@ -129,6 +129,30 @@ class PayoutRequest extends AbstractRequest
         return substr($result, 0, -1);
     }
 
+    private function prepareMultipartData($data, $prefix = '')
+    {
+        $multipartData = [];
+        foreach ($data as $key => $value) {
+            $fullKey = $prefix . $key;
+            if (is_array($value)) {
+                // Обработка вложенных массивов
+                foreach ($value as $subKey => $subValue) {
+                    $multipartData[] = [
+                        'name'     => "{$fullKey}[{$subKey}]",
+                        'contents' => $subValue
+                    ];
+                }
+            } else {
+                // Обработка простых значений
+                $multipartData[] = [
+                    'name'     => $fullKey,
+                    'contents' => $value
+                ];
+            }
+        }
+        return $multipartData;
+    }
+
 
     public function sendData($data)
     {
@@ -143,24 +167,15 @@ class PayoutRequest extends AbstractRequest
         $signString = $this->implodeRecursive(':', $sortedDataByKeys);
         $data['ik_sign'] = base64_encode(hash('sha256', $signString, true));
 
-        // Подготавливаем multipart/form-data
-        $multipartData = [];
-        foreach ($data as $key => $value) {
-            $multipartData[] = [
-                'name'     => $key,
-                'contents' => $value
-            ];
-        }
-
         // Устанавливаем необходимые HTTP заголовки
         $headers = [
             'Ik-Api-Account-Id' => $userId,
             'Content-Type' => 'multipart/form-data',
             'Authorization' => $authHeaderValue,
-            // Content-Type не нужен, так как Guzzle автоматически добавит его для multipart
         ];
 
 
+        $multipartData = $this->prepareMultipartData($data);
 
         // Отправляем запрос
         $httpResponse = $this->httpClient->request('POST', 'https://api.interkassa.com/v1/withdraw', [
