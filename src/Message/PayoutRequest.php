@@ -55,6 +55,7 @@ class PayoutRequest extends AbstractRequest
     {
         return $this->getParameter('details');
     }
+
     public function setDetails($value)
     {
         return $this->setParameter('details', $value);
@@ -86,19 +87,85 @@ class PayoutRequest extends AbstractRequest
         return $this->setParameter('amount', $value);
     }
 
+
+    public function getCard()
+    {
+        return $this->getParameter('card');
+    }
+
+    public function setCard($value)
+    {
+        return $this->setParameter('card', $value);
+    }
+
+    public function getFirstname()
+    {
+        return $this->getParameter('first_name');
+    }
+
+    public function setFirstname($value)
+    {
+        return $this->setParameter('first_name', $value);
+    }
+
+    public function getLastname()
+    {
+        return $this->getParameter('last_name');
+    }
+
+    public function setLastname($value)
+    {
+        return $this->setParameter('last_name', $value);
+    }
+
+    public function getPhone()
+    {
+        return $this->getParameter('phone');
+    }
+
+    public function setPhone($value)
+    {
+        return $this->setParameter('phone', $value);
+    }
+
+    public function getPurseid()
+    {
+        return $this->getParameter('purseId');
+    }
+
+    public function setPurseid($value)
+    {
+        return $this->setParameter('purseId', $value);
+    }
+
+    public function getAction()
+    {
+        return $this->getParameter('action');
+    }
+
+    public function setAction($value)
+    {
+        return $this->setParameter('action', $value);
+    }
+
+
+
     public function getData()
     {
 
         $data = [
-            'purseId' => $this->getShopId(),
+            'purseId' => $this->getPurseid(),
             'paymentNo' => $this->getTx(),
             'calcKey' => 'psPayeeAmount',
             'amount' => $this->getAmount(),
             'currency' => $this->getCurrency(),
-            'action' => 'process',
-            'useShortAlias' => true,
+            'action' => $this->getAction(),
+            'useShortAlias' => '1',
             'method' => $this->getMethod(),
-            'details' => $this->getDetails()
+            "details[card]" => $this->getCard(),
+            "details[first_name]" => $this->getFirstname(),
+            "details[last_name]" => $this->getLastname(),
+            "details[phone]" => $this->getPhone()
 
         ];
 
@@ -108,66 +175,29 @@ class PayoutRequest extends AbstractRequest
 
     }
 
-    function sortByKeyRecursive(array $array): array
-    {
-        ksort($array, SORT_STRING);
-        foreach ($array as $key => $value) {
-            if (is_array($value)) {
-                $array[$key] = $this->sortByKeyRecursive($value);
-            }
-        }
-        return $array;
-    }
-
-    function implodeRecursive(string $separator, array $array): string
-    {
-        $result = '';
-        foreach ($array as $item) {
-            $result .= (is_array($item) ? $this->implodeRecursive($separator, $item) : (string)$item) . $separator;
-        }
-
-        return substr($result, 0, -1);
-    }
-
-
     public function sendData($data)
     {
-        // Create a boundary for multipart/form-data using SHA256
-        $boundary = '----WebKitFormBoundary' . hash('sha256', time());
-        $multipartData = '';
-
-        // Format data as multipart/form-data
-        foreach ($data as $key => $value) {
-            if (is_array($value)) {
-                foreach ($value as $subKey => $subValue) {
-                    $multipartData .= "--$boundary\r\n";
-                    $multipartData .= "Content-Disposition: form-data; name=\"{$key}[{$subKey}]\"\r\n\r\n";
-                    $multipartData .= "$subValue\r\n";
-                }
-            } else {
-                $multipartData .= "--$boundary\r\n";
-                $multipartData .= "Content-Disposition: form-data; name=\"$key\"\r\n\r\n";
-                $multipartData .= "$value\r\n";
-            }
-        }
-
-        $multipartData .= "--$boundary--\r\n";
-
         $userId = $this->getUserApi();
         $apiKey = $this->getKeyApi();
-
         $authHeaderValue = 'Basic ' . base64_encode($userId . ':' . $apiKey);
 
+        $postData = http_build_query($data);
+
         $headers = [
-            'Content-Type' => "multipart/form-data; boundary=$boundary",
-            'Authorization' => $authHeaderValue,
-            'Ik-Api-Account-Id' => $userId
+            "Authorization" => $authHeaderValue,
+            "Ik-Api-Account-Id" => $userId,
+            'Content-Type' => 'application/x-www-form-urlencoded',
+
         ];
 
-        // Send the request
-        $httpResponse = $this->httpClient->request('POST', 'https://api.interkassa.com/v1/withdraw', $headers, $multipartData);
-        return $this->createResponse($httpResponse->getBody()->getContents());
+        $response = $this->httpClient->request('POST', 'https://api.interkassa.com/v1/withdraw',
+            $headers, $postData
+        );
+
+        return $this->createResponse($response->getBody()->getContents());
     }
+
+
 
 
     protected function createResponse($data)
