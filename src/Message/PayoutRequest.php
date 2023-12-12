@@ -155,51 +155,40 @@ class PayoutRequest extends AbstractRequest
 
     public function sendData($data)
     {
-        $userId = $this->getUserApi(); // Убедитесь, что возвращается строка
-        $apiKey = $this->getKeyApi(); // Убедитесь, что возвращается строка
-
-        // Кодирование в Base64 для заголовка авторизации
+        // Подготовка данных запроса и заголовков
+        $userId = $this->getUserApi(); // Убедитесь, что это строка
+        $apiKey = $this->getKeyApi(); // Убедитесь, что это строка
         $authHeaderValue = 'Basic ' . base64_encode($userId . ':' . $apiKey);
 
-        // Создаем подпись для данных
-        $checkoutKey = $this->getSecretKey(); // Убедитесь, что возвращается строка
+        $checkoutKey = $this->getSecretKey();
         $sortedDataByKeys = $this->sortByKeyRecursive($data);
         $sortedDataByKeys[] = $checkoutKey;
         $signString = $this->implodeRecursive(':', $sortedDataByKeys);
         $data['ik_sign'] = base64_encode(hash('sha256', $signString, true));
 
-        // Подготавливаем данные для multipart/form-data
-        $multipartData = [];
-        foreach ($data as $key => $value) {
-            if (is_array($value)) {
-                foreach ($value as $subKey => $subValue) {
-                    $multipartData[] = [
-                        'name'     => $key . '[' . $subKey . ']',
-                        'contents' => $subValue
-                    ];
-                }
-            } else {
-                $multipartData[] = [
-                    'name'     => $key,
-                    'contents' => $value
-                ];
-            }
+        $multipartData = $this->prepareMultipartData($data);
+
+        // Создаем HTTP-клиент Guzzle
+        $client = new \GuzzleHttp\Client();
+
+        // Выполняем запрос
+        try {
+            $response = $client->request('POST', 'https://api.interkassa.com/v1/withdraw', [
+                'headers' => [
+                    'Authorization' => $authHeaderValue,
+                    'Ik-Api-Account-Id' => $userId,
+                ],
+                'multipart' => $multipartData
+            ]);
+        } catch (\Exception $e) {
+            // Обработка ошибок запроса
+            // Можно логировать или пробрасывать исключение дальше
+            error_log($e->getMessage());
+            throw $e;
         }
 
-        $headers = [
-            'Authorization' => $authHeaderValue,
-            'Ik-Api-Account-Id' => $userId
-        ];
-        print_r(json_encode($headers));
-        print_r(json_encode($multipartData));
-
-
-        $httpResponse = $this->httpClient->request('POST', 'https://api.interkassa.com/v1/withdraw', [
-            'headers' => $headers,
-            'multipart' => $multipartData
-        ]);
-
-        return $this->createResponse($httpResponse->getBody()->getContents());
+        // Обработка ответа для Omnipay
+        return $this->response = $this->createResponse($response->getBody()->getContents());
     }
 
 
