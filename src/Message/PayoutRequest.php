@@ -160,6 +160,7 @@ class PayoutRequest extends AbstractRequest
         $apiKey = $this->getKeyApi(); // Получаем API ключ
 
         $authHeaderValue = 'Basic ' . base64_encode($userId . ':' . $apiKey);
+
         // Создаем подпись для данных
         $checkoutKey = $this->getSecretKey();
         $sortedDataByKeys = $this->sortByKeyRecursive($data);
@@ -170,10 +171,8 @@ class PayoutRequest extends AbstractRequest
         // Устанавливаем необходимые HTTP заголовки
         $headers = [
             'Ik-Api-Account-Id' => $userId,
-            'Content-Type' => 'multipart/form-data',
             'Authorization' => $authHeaderValue,
         ];
-
 
         $multipartData = $this->prepareMultipartData($data);
 
@@ -184,6 +183,7 @@ class PayoutRequest extends AbstractRequest
         ]);
         return $this->createResponse($httpResponse->getBody()->getContents());
     }
+
 
 
 
