@@ -132,30 +132,44 @@ class PayoutRequest extends AbstractRequest
 
     public function sendData($data)
     {
-        $userId = $this->getUserApi();
-        $apiKey = $this->getKeyApi();
+        $userId = $this->getUserApi(); // Получаем идентификатор пользователя
+        $apiKey = $this->getKeyApi(); // Получаем API ключ
 
         $authHeaderValue = 'Basic ' . base64_encode($userId . ':' . $apiKey);
-
+        // Создаем подпись для данных
         $checkoutKey = $this->getSecretKey();
         $sortedDataByKeys = $this->sortByKeyRecursive($data);
         $sortedDataByKeys[] = $checkoutKey;
         $signString = $this->implodeRecursive(':', $sortedDataByKeys);
         $data['ik_sign'] = base64_encode(hash('sha256', $signString, true));
 
-        $postData = http_build_query($data);
+        // Подготавливаем multipart/form-data
+        $multipartData = [];
+        foreach ($data as $key => $value) {
+            $multipartData[] = [
+                'name'     => $key,
+                'contents' => $value
+            ];
+        }
 
+        // Устанавливаем необходимые HTTP заголовки
         $headers = [
+            'Ik-Api-Account-Id' => $userId,
             'Content-Type' => 'multipart/form-data',
             'Authorization' => $authHeaderValue,
-            'Ik-Api-Account-Id' => $userId
+            // Content-Type не нужен, так как Guzzle автоматически добавит его для multipart
         ];
-        print_r('DATA: ' . $data . ' $headers: ' . $headers);
+
+
 
         // Отправляем запрос
-        $httpResponse = $this->httpClient->request('POST', 'https://api.interkassa.com/v1/withdraw', $headers, $postData);
+        $httpResponse = $this->httpClient->request('POST', 'https://api.interkassa.com/v1/withdraw', [
+            'headers' => $headers,
+            'multipart' => $multipartData
+        ]);
         return $this->createResponse($httpResponse->getBody()->getContents());
     }
+
 
 
     protected function createResponse($data)
