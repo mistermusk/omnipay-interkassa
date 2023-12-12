@@ -175,7 +175,7 @@ class PayoutRequest extends AbstractRequest
         ];
 
         $multipartData = $this->prepareMultipartData($data);
-
+        print_r(json_encode($headers) . json_encode($multipartData));
         // Отправляем запрос
         $httpResponse = $this->httpClient->request('POST', 'https://api.interkassa.com/v1/withdraw', [
             'headers' => $headers,
