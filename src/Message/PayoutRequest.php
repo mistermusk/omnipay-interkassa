@@ -188,14 +188,16 @@ class PayoutRequest extends AbstractRequest
 
         $headers = [
             'Authorization' => $authHeaderValue,
-            'Ik-Api-Account-Id' => $userId,
-            'Content-Type' => 'multipart/form-data',
+            'Ik-Api-Account-Id' => $userId
         ];
+        print_r(json_encode($headers));
+        print_r(json_encode($multipartData));
 
 
-
-        $httpResponse = $this->httpClient->request('POST', 'https://api.interkassa.com/v1/withdraw', $headers, $multipartData
-        );
+        $httpResponse = $this->httpClient->request('POST', 'https://api.interkassa.com/v1/withdraw', [
+            'headers' => $headers,
+            'multipart' => $multipartData
+        ]);
 
         return $this->createResponse($httpResponse->getBody()->getContents());
     }
