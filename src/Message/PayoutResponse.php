@@ -16,5 +16,9 @@ class PayoutResponse extends AbstractResponse
         }
     }
 
+    public function getMessage()
+    {
+        return isset($this->data['message']) ? json_encode($this->data['message']) : null;
+    }
 
 }
