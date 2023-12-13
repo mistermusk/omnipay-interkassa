@@ -148,6 +148,16 @@ class PayoutRequest extends AbstractRequest
         return $this->setParameter('action', $value);
     }
 
+    public function getApiaccountid()
+    {
+        return $this->getParameter('api_account_id');
+    }
+
+    public function setApiaccountid($value)
+    {
+        return $this->setParameter('api_account_id', $value);
+    }
+
 
 
     public function getData()
@@ -185,7 +195,7 @@ class PayoutRequest extends AbstractRequest
 
         $headers = [
             "Authorization" => $authHeaderValue,
-            "Ik-Api-Account-Id" => $userId,
+            "Ik-Api-Account-Id" => $this->getApiaccountid(),
             'Content-Type' => 'application/x-www-form-urlencoded',
 
         ];
