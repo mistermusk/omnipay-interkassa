@@ -18,6 +18,16 @@ class PurchaseRequest extends AbstractRequest
         return $this->getParameter('tx');
     }
 
+    public function getLevel()
+    {
+        return $this->getParameter('level');
+    }
+    public function setLevel($fullKeys)
+    {
+        return $this->setParameter('level', $fullKeys);
+    }
+
+
     public function getMethod()
     {
         return $this->getParameter('method');
