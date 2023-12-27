@@ -56,7 +56,7 @@ class PurchaseRequest extends AbstractRequest
 
     public function getSecretKey()
     {
-        return $this->getKeys()['api_deposit'][$this->getLevel()][$this->getCurrency()]['secret_key'];
+        return $this->getKeys()['api_deposit'][$this->getLevel()][$this->getMethod()][$this->getCurrency()]['secret_key'];
     }
 
 
