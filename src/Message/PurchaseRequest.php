@@ -20,11 +20,13 @@ class PurchaseRequest extends AbstractRequest
 
     public function getLevel()
     {
-        return $this->getParameter('level');
+        if ($this->getParameter('level'))
+            return 'first_level';
+        return 'second_level';
     }
-    public function setLevel($fullKeys)
+    public function setLevel($value)
     {
-        return $this->setParameter('level', $fullKeys);
+        return $this->setParameter('level', $value);
     }
 
 
@@ -54,7 +56,7 @@ class PurchaseRequest extends AbstractRequest
 
     public function getSecretKey()
     {
-        return $this->getKeys()['api_deposit'][$this->getLevel()][$this->getMethod()][$this->getCurrency()]['secret_key'];
+        return $this->getKeys()['api_deposit'][$this->getLevel()][$this->getCurrency()]['secret_key'];
     }
 
 
