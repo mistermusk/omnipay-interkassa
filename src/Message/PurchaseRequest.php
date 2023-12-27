@@ -28,24 +28,25 @@ class PurchaseRequest extends AbstractRequest
         return $this->getParameter('amount');
     }
 
-    public function setFullKeys($fullKeys){
-        return $this->setParameter('fullKeys', $fullKeys);
+    public function setKeys($fullKeys){
+        return $this->setParameter('keys', $fullKeys);
     }
 
-    public function getFullKeys()
+    public function getKeys()
     {
-        return $this->getParameter('fullKeys');
+        return $this->getParameter('keys');
     }
 
-    public function getShopId()
+    public function getApikey()
     {
-        return $this->getFullKeys()[$this->getMethod()]['shop_id'];
+        return $this->getKeys()['api_deposit'][$this->getLevel()][$this->getMethod()][$this->getCurrency()]['api_key'];
     }
 
     public function getSecretKey()
     {
-        return $this->getFullKeys()[$this->getMethod()]['secret_key'];
+        return $this->getKeys()['api_deposit'][$this->getLevel()][$this->getMethod()][$this->getCurrency()]['secret_key'];
     }
+
 
 
     public function setCurrency($value)
@@ -68,15 +69,32 @@ class PurchaseRequest extends AbstractRequest
         return $this->setParameter('amount', $value);
     }
 
+    public function getRedirecturl()
+    {
+        return $this->getKeys()['redirect_url'];
+    }
+
+    public function getCallbackurl()
+    {
+        return $this->getParameter('callback_url');
+    }
+    public function setCallbackurl($value)
+    {
+        return $this->setParameter('callback_url', $value);
+    }
+
     public function getData()
     {
 
         $data = [
-            'ik_co_id' => $this->getShopId(),
+            'ik_co_id' => $this->getApikey(),
             'ik_pm_no' => $this->getTx(),
             'ik_am' => $this->getAmount(),
             'ik_cur' => $this->getCurrency(),
-            'ik_desc' => 'interkassa',
+            'ik_desc' => $this->getTx(),
+            'ik_suc_u' => $this->getRedirecturl(),
+            'ik_fal_u' => $this->getRedirecturl(),
+            'ik_ia_u' => $this->getCallbackurl(),
             'ik_act' => 'process',
             'ik_int' => 'json',
             'ik_payment_method' => $this->getMethod(),

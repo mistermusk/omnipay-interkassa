@@ -9,11 +9,25 @@ class PayoutResponse extends AbstractResponse
 
     public function isSuccessful()
     {
-        if (isset($this->data['status'])) {
-            if ($this->data['status'] == 'ok') {
+        if (isset($this->data['data'])) {
+            $status = (int)$this->data['data']['state'];
+            if (in_array($status, [9, 10, 11])) {
+                return false;
+            } else {
                 return true;
             }
         }
+        return false;
+    }
+    public function getStatus()
+    {
+        $status = (int)$this->data['data']['state'];
+        if (in_array($status, [9, 10, 11])) {
+            return 'canceled';
+        } elseif (in_array($status, [8])) {
+            return 'success';
+        }
+        return 'pending';
     }
 
     public function getMessage()

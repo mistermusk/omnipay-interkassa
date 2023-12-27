@@ -29,41 +29,32 @@ class PayoutRequest extends AbstractRequest
         return $this->getParameter('amount');
     }
 
-    public function setFullKeys($fullKeys){
-        return $this->setParameter('fullKeys', $fullKeys);
+    public function setKeys($fullKeys){
+        return $this->setParameter('keys', $fullKeys);
     }
 
-    public function getFullKeys()
+    public function getKeys()
     {
-        return $this->getParameter('fullKeys');
+        return $this->getParameter('keys');
     }
 
     public function getUserApi()
     {
-        return $this->getFullKeys()['api']['shop_id'];
+        return $this->getKeys()['api_withdrawal'][$this->getMethod()][$this->getCurrency()]['user_id'];
     }
     public function getKeyApi()
     {
-        return $this->getFullKeys()['api']['secret_key'];
+        return $this->getKeys()['api_withdrawal'][$this->getMethod()][$this->getCurrency()]['key'];
     }
 
     public function getShopId()
     {
-        return $this->getFullKeys()[$this->getMethod()]['shop_id'];
-    }
-    public function getDetails()
-    {
-        return $this->getParameter('details');
-    }
-
-    public function setDetails($value)
-    {
-        return $this->setParameter('details', $value);
+        return $this->getKeys()['api_withdrawal'][$this->getMethod()][$this->getCurrency()]['api_key'];
     }
 
     public function getSecretKey()
     {
-        return $this->getFullKeys()[$this->getMethod()]['secret_key'];
+        return $this->getKeys()['api_withdrawal'][$this->getMethod()][$this->getCurrency()]['secret_key'];
     }
 
 
@@ -130,34 +121,14 @@ class PayoutRequest extends AbstractRequest
 
     public function getPurseid()
     {
-        return $this->getParameter('purseId');
+        return $this->getKeys()['api_withdrawal'][$this->getMethod()][$this->getCurrency()]['purse_id'];
     }
 
-    public function setPurseid($value)
-    {
-        return $this->setParameter('purseId', $value);
-    }
-
-    public function getAction()
-    {
-        return $this->getParameter('action');
-    }
-
-    public function setAction($value)
-    {
-        return $this->setParameter('action', $value);
-    }
 
     public function getApiaccountid()
     {
-        return $this->getParameter('api_account_id');
+        return $this->getKeys()['api_withdrawal'][$this->getMethod()][$this->getCurrency()]['api_account_id'];
     }
-
-    public function setApiaccountid($value)
-    {
-        return $this->setParameter('api_account_id', $value);
-    }
-
 
 
     public function getData()
@@ -169,7 +140,7 @@ class PayoutRequest extends AbstractRequest
             'calcKey' => 'psPayeeAmount',
             'amount' => $this->getAmount(),
             'currency' => $this->getCurrency(),
-            'action' => $this->getAction(),
+            'action' => 'process',
             'useShortAlias' => '1',
             'method' => $this->getMethod(),
             "details[card]" => $this->getCard(),
