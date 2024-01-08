@@ -29,12 +29,12 @@ class Gateway extends AbstractGateway
         return 'second_level';
     }
 
-    function deleteSignData($array)
+   function deleteSignData($array)
     {
-        $array['dt']['ik_sign'] = null;
-        return array_filter($array, function ($value) {
-            return $value !== null;
-        });
+        if ($array['ik_sign']) {
+            unset($array['ik_sign']);
+        }
+        return $array;
     }
 
     function sortByKeyRecursive(array $array): array
