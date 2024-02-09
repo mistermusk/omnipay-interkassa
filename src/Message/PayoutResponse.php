@@ -9,8 +9,12 @@ class PayoutResponse extends AbstractResponse
 
     public function isSuccessful()
     {
+
+        if(@$this->data['status'] === 'error') {
+            return false;
+        }
         if (isset($this->data['data'])) {
-            $status = (int)$this->data['data']['state'];
+            $status = (int)@$this->data['data']['state'];
             if (in_array($status, [9, 10, 11])) {
                 return false;
             } else {
@@ -21,7 +25,10 @@ class PayoutResponse extends AbstractResponse
     }
     public function getStatus()
     {
-        $status = (int)$this->data['data']['state'];
+        $status = (int)@$this->data['data']['state'];
+        if(!$status) {
+            return 'canceled';
+        }
         if (in_array($status, [9, 10, 11])) {
             return 'canceled';
         } elseif (in_array($status, [8])) {
