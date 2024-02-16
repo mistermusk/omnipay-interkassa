@@ -5,14 +5,12 @@ namespace Omnipay\InterKassa\Message;
 use Omnipay\Common\Message\AbstractResponse;
 use Omnipay\InterKassa\Helpers\DataHandler;
 
-class PayoutResponse extends AbstractResponse
+class PayoutDataByIdResponse extends AbstractResponse
 {
 
-    
-    
+  
     public function isSuccessful()
     {
-
         if(@$this->data['status'] === 'error') {
             return false;
         }
@@ -22,21 +20,16 @@ class PayoutResponse extends AbstractResponse
         return true;
     }
 
-    public function getState() {
-        return (int)@$this->data['data']['state'];
+    function getItem() {
+        return empty($this->data['data'][0]) ? null : (object)$this->data['data'][0];
     }
 
 
-    
-
-    public function getPaymentState()
+    public function getState()
     {
-        return DataHandler::convertRawState($this->getState());
+        $target = $this->getItem();
+        return DataHandler::convertRawState(@$target->state);
     }
 
-    public function getMessage()
-    {
-        return isset($this->data['message']) ? json_encode($this->data['message']) : null;
-    }
 
 }

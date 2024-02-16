@@ -85,4 +85,9 @@ class Gateway extends AbstractGateway
         return $this->createRequest('\Omnipay\InterKassa\Message\PayoutRequest', $parameters)
             ->setKeys($this->getKeys());
     }
+
+    function getPayoutDataByExternalId($externalId) {
+        return $this->createRequest('\Omnipay\InterKassa\Message\PayoutDataByIdRequest', $externalId)
+            ->setKeys($this->getKeys());
+    }
 }
