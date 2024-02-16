@@ -99,8 +99,6 @@ class PayoutDataByIdRequest extends AbstractRequest {
     }
 
     public function getPurseid() {
-        $devVal = $this->getKeys()['api_withdrawal'];
-        dd([$this->getMethod()]);
         $v = $this->getKeys()['api_withdrawal'][$this->getMethod()][$this->getCurrency()]['purse_id'];
         return $v;
     }
